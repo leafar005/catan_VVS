@@ -31,3 +31,6 @@ local.properties
 
 # Backed up points in the project possibly useful for the presentation
 demos/*
+
+# Jqwik
+.jqwik-database

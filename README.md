@@ -10,3 +10,12 @@ For a true multiplayer experience, networking capabilities would be needed to su
 
 ![An early game screenshot from this Catan project.](./gameplay-demo.png)
 
+EJECUCIÓN DEL PROGRAMA:
+
+Primera vez:
+cd "c:/software/informatica/4 curso/1 cuatri/VVS/catan_VVS"
+mkdir out
+javac -d out $(Get-ChildItem -Recurse -Filter *.java | Select-Object -ExpandProperty FullName)
+
+Ejecución:
+java -cp out game.GameRunner

@@ -25,6 +25,7 @@ import javax.swing.SwingUtilities;
 
 import board.*;
 import game.*;
+import runner.GameRunner;
 
 
 public class CatanBoard extends JPanel{

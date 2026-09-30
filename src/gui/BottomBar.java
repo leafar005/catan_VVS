@@ -1,6 +1,6 @@
 package gui;
 
-import game.GameRunner;
+import runner.GameRunner;
 import game.Player;
 
 import java.awt.Color;

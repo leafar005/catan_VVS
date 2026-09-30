@@ -1,9 +1,12 @@
-package game;
+package runner;
 
 import gui.GameWindow;
 
 import java.awt.Color;
 import java.util.ArrayList;
+
+import game.Game;
+import game.Player;
 
 import javax.swing.SwingUtilities;
 

@@ -16,8 +16,8 @@ A continuación se listan todas las pruebas que hemos ido añadiendo al reposito
 * **ArchUnit (Análisis Estructural)**: Ejecutado durante la fase de `test` de Maven. El test `gameShouldNotDependOnGui` **FALLA**, demostrando un acoplamiento incorrecto en la arquitectura (ver sección de Errores).
 * **CheckStyle (Análisis Estático)**: Ejecutado con `mvn checkstyle:check`. Detectó 3.298 violaciones de estilo, deteniendo la compilación (ver sección de Errores).
 * **SpotBugs (Análisis Estático)**: Ejecutado con `mvn compile spotbugs:check`. Detectó 41 posibles bugs de distintas gravedades (ver sección de Errores).
-* *(Pendiente)* **JaCoCo**: Análisis de cobertura de código sin ejecutar todavía.
-* *(Pendiente)* **PIT (PiTest)**: Análisis de mutaciones sin ejecutar todavía.
+* **JaCoCo (Cobertura)**: Ejecutado. La cobertura de código es del 0% ya que no existen pruebas unitarias, solo pruebas estructurales (ver sección de Errores).
+* **PIT (PiTest)**: Ejecutado. Abortó el análisis porque requiere que todos los tests originales pasen ("green suite") antes de poder inyectar mutaciones (ver sección de Errores).
 
 ## 3. Errores y Problemas Detectados (Issues)
 
@@ -47,3 +47,13 @@ Aquí documentaremos cualquier *bug*, defecto o problema de diseño detectado me
 * **Ejemplos de la traza:**
   - `High: Call to java.util.ArrayList<java.lang.String>.equals(String) in game.Player.hasResources(ArrayList)`
   - `High: Comparison of String parameter using == or != in game.Player.giveResourceType(String)`
+
+### 🧪 Issue #4: Cobertura de código nula (0%)
+* **Herramienta que lo detectó:** JaCoCo
+* **Clases afectadas:** Todas las clases de `game` y `board`
+* **Descripción del problema:** Según el reporte generado por JaCoCo, la cobertura de código es exactamente del **0%** (0 líneas ejecutadas, 0 ramas evaluadas). Esto ocurre porque el único test que existe (`ArchitectureTest`) se limita a analizar la estructura de las clases sin llegar a instanciar ni ejecutar la lógica del juego.
+
+### 🚫 Issue #5: PiTest abortado por test previo en rojo
+* **Herramienta que lo detectó:** PIT (PiTest)
+* **Clases afectadas:** Entorno de Testing
+* **Descripción del problema:** Al lanzar el análisis de mutaciones, PIT detiene la compilación con el error `1 tests did not pass without mutation. Mutation testing requires a green suite.`. Dado que `ArchitectureTest` falla por defecto (Issue #1), la herramienta se niega a inyectar mutaciones hasta que arreglemos el fallo de la arquitectura (o excluyamos el test fallido).

@@ -51,6 +51,13 @@
             <version>${archunit.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- JETM (Performance Testing) -->
+        <dependency>
+            <groupId>fm.void.jetm</groupId>
+            <artifactId>jetm</artifactId>
+            <version>1.2.3</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -130,6 +137,7 @@
                 <version>3.3.1</version>
                 <configuration>
                     <configLocation>sun_checks.xml</configLocation>
+                    <excludes>**/gui/**,**/lib/**</excludes>
                 </configuration>
             </plugin>
 

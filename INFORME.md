@@ -14,7 +14,8 @@ A continuación se listan todas las pruebas que hemos ido añadiendo al reposito
 ## 2. Resultados de las Herramientas
 
 * **ArchUnit (Análisis Estructural)**: Ejecutado durante la fase de `test` de Maven. El test `gameShouldNotDependOnGui` **FALLA**, demostrando un acoplamiento incorrecto en la arquitectura (ver sección de Errores).
-* *(Pendiente)* **CheckStyle / SpotBugs**: Análisis estático sin ejecutar todavía.
+* **CheckStyle (Análisis Estático)**: Ejecutado con `mvn checkstyle:check`. Detectó 3.298 violaciones de estilo, deteniendo la compilación (ver sección de Errores).
+* **SpotBugs (Análisis Estático)**: Ejecutado con `mvn compile spotbugs:check`. Detectó 41 posibles bugs de distintas gravedades (ver sección de Errores).
 * *(Pendiente)* **JaCoCo**: Análisis de cobertura de código sin ejecutar todavía.
 * *(Pendiente)* **PIT (PiTest)**: Análisis de mutaciones sin ejecutar todavía.
 
@@ -33,3 +34,16 @@ Aquí documentaremos cualquier *bug*, defecto o problema de diseño detectado me
   Method <game.GameRunner$1.run()> calls method <gui.CatanBoard.getGame()> in (GameRunner.java:33)
   Method <game.GameRunner$1.run()> calls method <gui.GameWindow.getBoard()> in (GameRunner.java:33)
   ```
+
+### 🧹 Issue #2: Violaciones masivas de estilo de código
+* **Herramienta que lo detectó:** CheckStyle
+* **Clases afectadas:** Todo el proyecto (especialmente la capa `gui` y `lib`)
+* **Descripción del problema:** Se han detectado 3.298 violaciones de estilo (espacios incorrectos, falta de JavaDoc, números mágicos, omisión de `final` en parámetros, etc.). Debido al altísimo volumen de errores de formato heredados en el código, se documenta el hallazgo pero no se corregirán por exceder el ámbito de la práctica.
+
+### 🐞 Issue #3: Errores graves de lógica y comparación
+* **Herramienta que lo detectó:** SpotBugs
+* **Clase afectada:** Principalmente `game.Player`
+* **Descripción del problema:** SpotBugs ha encontrado 41 defectos de código. Entre ellos destacan errores **críticos** de programación en Java que provocan comportamientos indeseados: comparar `String` usando `==` en vez de `.equals()` (`ES_COMPARING_PARAMETER_STRING_WITH_EQ`), y comparar un `ArrayList` con un `String` (`EC_UNRELATED_TYPES`), lo cual siempre devolverá falso.
+* **Ejemplos de la traza:**
+  - `High: Call to java.util.ArrayList<java.lang.String>.equals(String) in game.Player.hasResources(ArrayList)`
+  - `High: Comparison of String parameter using == or != in game.Player.giveResourceType(String)`

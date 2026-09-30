@@ -238,15 +238,15 @@ public class Player {
 			grain = 0;
 
 		for (String s : res) {
-			if (res.equals("WOOL"))
+			if (s.equals("WOOL"))
 				wool++;
-			else if (res.equals("ORE"))
+			else if (s.equals("ORE"))
 				ore++;
-			else if (res.equals("LUMBER"))
+			else if (s.equals("LUMBER"))
 				lumber++;
-			else if (res.equals("BRICK"))
+			else if (s.equals("BRICK"))
 				brick++;
-			else if (res.equals("GRAIN"))
+			else if (s.equals("GRAIN"))
 				grain++;
 		}
 
@@ -264,7 +264,7 @@ public class Player {
 	public boolean hasCard(String str) {
 
 		for (DevCard dev : hand) {
-			if (dev.getSubType() == str || dev.getType() == str)
+			if (str.equals(dev.getSubType()) || str.equals(dev.getType()))
 				return true;
 		}
 
@@ -273,7 +273,7 @@ public class Player {
 
 	public void removeCard(String str) {
 		for (DevCard dC : hand) {
-			if (dC.getSubType() == str || dC.getType() == str) {
+			if (str.equals(dC.getSubType()) || str.equals(dC.getType())) {
 				hand.remove(dC);
 				break;
 			}
@@ -360,7 +360,7 @@ public class Player {
 	 * @param str the resource type to increment
 	 */
 	public void giveResourceType(String str) {
-		if (str == null || str == "DESERT") {
+		if (str == null || "DESERT".equals(str)) {
 			return;
 		}
 		resources.put(str, resources.get(str) + 1);

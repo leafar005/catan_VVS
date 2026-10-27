@@ -86,3 +86,10 @@ Aquí documentaremos cualquier *bug*, defecto o problema de diseño detectado me
 * **Herramienta que lo detectó:** Tests de Integración (`PlayerBoardIntegrationTest`)
 * **Clase afectada:** `game.Game` (línea 41) y `game.GameRunner` (línea 53)
 * **Descripción del problema:** El constructor de `Game` invoca incondicionalmente el método estático `GameRunner.setFirstPlayer()`, el cual intenta acceder a `players.get(0)` sobre la lista privada estática de `GameRunner`. Dicha lista únicamente se inicializaba al ejecutar el método `main` de la GUI. Como consecuencia, cualquier intento de instanciar `Game` en un test automatizado o módulo desacoplado fallaba con un `IndexOutOfBoundsException`. Para las pruebas de integración fue necesario inicializar dicha lista estática mediante introspección (`reflection`) en el `setUp`.
+
+### 🏆 Issue #8: Defecto de algoritmo en la comprobación del ganador (`Game.winningPlayer`)
+* **Herramienta que lo detectó:** Tests de Integración (`PlayerBoardIntegrationTest`)
+* **Clase afectada:** `game.Game.winningPlayer()` (líneas 58-69)
+* **Descripción del problema:** Error de lógica en el algoritmo que calcula el segundo máximo de puntos de victoria. El método inicializa tanto `maxVictoryPoints` como `secondMaxVictoryPoints` apuntando a `players.get(0)`. Cuando itera buscando al jugador con mayor puntuación:
+  1. Si encuentra un jugador con más puntos, actualiza `maxVictoryPoints` pero **no actualiza** `secondMaxVictoryPoints` con el valor del máximo previo.
+  2. Si el jugador con 10 o más puntos resulta ser el que está en el índice `0` tras el `Collections.shuffle` del constructor, `secondMaxVictoryPoints` se inicializa con 10 puntos. Al finalizar el bucle, se evalúa la condición estricta `maxVictoryPoints.getVictoryPoints() > secondMaxVictoryPoints.getVictoryPoints()` (`10 > 10`), la cual evalúa a `false`. Como resultado, el método devuelve `null` y el juego nunca detecta la victoria de dicho jugador.

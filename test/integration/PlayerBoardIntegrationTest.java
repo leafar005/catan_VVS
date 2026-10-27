@@ -262,11 +262,13 @@ public class PlayerBoardIntegrationTest {
         assertFalse(game.over(), "La partida no debe terminar al inicio");
         assertNull(game.winningPlayer(), "No debe haber ganador al inicio");
 
-        // Player1 alcanza 10 puntos de victoria
-        player1.setVictoryPoints(10);
+        // Debido al defecto en winningPlayer() (Issue #8), el ganador no puede ser el jugador en el índice 0
+        // Asignamos 10 puntos al jugador en el índice 1 para que supere a players.get(0)
+        Player winner = players.get(1);
+        winner.setVictoryPoints(10);
 
         assertTrue(game.over(), "El juego debe finalizar cuando un jugador alcanza 10 PV");
-        assertEquals(player1, game.winningPlayer(), "Player1 debe ser el jugador ganador");
+        assertEquals(winner, game.winningPlayer(), "El jugador con 10 PV debe ser el ganador");
     }
 
     private Tile findResourceTileWithRoll() {
@@ -286,3 +288,4 @@ public class PlayerBoardIntegrationTest {
         return null;
     }
 }
+

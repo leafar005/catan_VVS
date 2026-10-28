@@ -2,6 +2,7 @@ package integration;
 
 import board.*;
 import game.*;
+import runner.GameRunner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,9 +14,12 @@ import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Pruebas de integración caja negra que validan la interacción entre Player, Board y Game.
- * Se evalúa el ciclo de vida del juego: colocación de estructuras, conexión de carreteras,
- * regla de distancia, distribución de recursos, ladrón, compras y condición de victoria.
+ * Pruebas de integración caja negra que validan la interacción entre Player,
+ * Board y Game.
+ * Se evalúa el ciclo de vida del juego: colocación de estructuras, conexión de
+ * carreteras,
+ * regla de distancia, distribución de recursos, ladrón, compras y condición de
+ * victoria.
  */
 public class PlayerBoardIntegrationTest {
 
@@ -31,7 +35,8 @@ public class PlayerBoardIntegrationTest {
         player2 = new Player("Pedro", Color.BLUE);
         player3 = new Player("Santi", Color.GREEN);
 
-        // Inicialización de la lista interna estática de GameRunner necesaria por acoplamiento en Game.<init>
+        // Inicialización de la lista interna estática de GameRunner necesaria por
+        // acoplamiento en Game.<init>
         Field grPlayersField = GameRunner.class.getDeclaredField("players");
         grPlayersField.setAccessible(true);
         @SuppressWarnings("unchecked")
@@ -59,7 +64,8 @@ public class PlayerBoardIntegrationTest {
         // 1. Colocación inicial sin carretera previa
         boolean settlementPlaced = board.placeStructureNoRoad(settlementLoc, player1);
         assertTrue(settlementPlaced, "El poblado inicial debería poder colocarse en un vértice libre");
-        assertEquals(player1, board.getStructure(settlementLoc).getOwner(), "El dueño de la estructura debe ser player1");
+        assertEquals(player1, board.getStructure(settlementLoc).getOwner(),
+                "El dueño de la estructura debe ser player1");
 
         // 2. No se puede colocar otro poblado en el mismo vértice
         boolean duplicateSettlement = board.placeStructureNoRoad(settlementLoc, player2);
@@ -134,7 +140,8 @@ public class PlayerBoardIntegrationTest {
         // Mejora a ciudad a través de Game (que instancia la clase City en el tablero)
         boolean cityPlaced = game.placeCity(player1, vertexOnTile);
         assertTrue(cityPlaced, "El dueño del poblado debe poder mejorarlo a ciudad vía Game");
-        assertTrue(gameBoard.getStructure(vertexOnTile) instanceof City, "La estructura en el tablero debe ser instancia de City");
+        assertTrue(gameBoard.getStructure(vertexOnTile) instanceof City,
+                "La estructura en el tablero debe ser instancia de City");
 
         // Otro jugador no puede mejorar un poblado ajeno
         boolean invalidUpgrade = game.placeCity(player2, vertexOnTile);
@@ -262,8 +269,10 @@ public class PlayerBoardIntegrationTest {
         assertFalse(game.over(), "La partida no debe terminar al inicio");
         assertNull(game.winningPlayer(), "No debe haber ganador al inicio");
 
-        // Debido al defecto en winningPlayer() (Issue #8), el ganador no puede ser el jugador en el índice 0
-        // Asignamos 10 puntos al jugador en el índice 1 para que supere a players.get(0)
+        // Debido al defecto en winningPlayer() (Issue #8), el ganador no puede ser el
+        // jugador en el índice 0
+        // Asignamos 10 puntos al jugador en el índice 1 para que supere a
+        // players.get(0)
         Player winner = players.get(1);
         winner.setVictoryPoints(10);
 
@@ -288,4 +297,3 @@ public class PlayerBoardIntegrationTest {
         return null;
     }
 }
-

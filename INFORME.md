@@ -49,6 +49,38 @@ Suite de 148 métodos de test activos (más 9 desactivados que documentan defect
 - **Propiedades jqwik**: cualquier vértice de la casilla tirada recibe 1 recurso; para cualquier tirada 2–12 el vértice central recibe tantos recursos como casillas productoras toca; tiradas > 12 o negativas nunca producen; el ladrón siempre está en una sola casilla; el dueño de cualquier vértice de la casilla del ladrón es adyacente; cualquier vértice de tierra acepta el primer poblado.
 - **Tests desactivados (`@Disabled`)**: describen el comportamiento correcto en los Issues #6, #9, #10, #11, #12, #13, #14 y #15. Se ha comprobado que fallan al activarlos; se mantienen desactivados para que PITest disponga de una suite en verde.
 
+### Pruebas Unitarias de `Deck` (`test/board/DeckTest.java`)
+
+Suite de 3 pruebas unitarias para aislar y validar el comportamiento de la baraja de desarrollo (`Deck`), resolviendo la ausencia de pruebas en PITest:
+- `deckInitialization_containsExactly25CardsWithCorrectDistribution`: Comprueba la extracción secuencial de las 25 cartas de desarrollo y verifica la distribución exacta de tipos y subtipos del reglamento (14 Caballeros, 5 Puntos de Victoria, 2 Construcción de carreteras, 2 Año de la abundancia y 2 Monopolio).
+- `draw_returnsNullWhenDeckIsEmpty`: Verifica que al extraer las 25 cartas la baraja quede vacía y las extracciones subsiguientes devuelvan `null`.
+- `isEmpty_reflectsDeckStateAccurately`: Valida que `isEmpty()` devuelva `false` mientras queden cartas y pase a `true` tras retirar la última carta.
+
+### Pruebas Unitarias de Estructuras (`test/board/StructureUnitTest.java`)
+
+Suite de 7 pruebas unitarias destinadas a aniquilar mutantes supervivientes en `City`, `Settlement` y `Road`:
+- `cityConstructor_setsLocationAndType`: Valida la asignación de `VertexLocation` y `type = 1` en `City` (aniquila mutantes de `setLocation` y `setType`).
+- `cityGiveResources_incrementsOwnerResourcesByTwo`: Comprueba que `City.giveResources` otorgue exactamente 2 unidades de recurso al dueño.
+- `settlementConstructor_setsLocationAndType`: Valida que `Settlement` fije su `VertexLocation` y `type = 0` (aniquila mutante de `setType(0)`).
+- `settlementGiveResources_incrementsOwnerResourcesByOne`: Comprueba que `Settlement.giveResources` incremente en 1 unidad el recurso del dueño.
+- `roadConstructor_setsLocationAndNullOwner`: Valida `EdgeLocation`, dueño nulo inicial y bandera de visita en `Road`.
+- `roadVisit_togglesVisitedState`: Valida el ciclo completo de marcado (`isVisited()`, `visit()` y `resetVisited()`).
+- `boardPlaceRoad_setsOwnerForOrientationsOneAndTwo`: Valida que `Board.placeRoad` asigne correctamente el dueño en aristas de orientación 1 y 2 (aniquila mutantes en líneas 346 y 362 de `Board`).
+
+### Pruebas Unitarias de Compras en `Game` (`test/game/GamePurchaseTest.java`)
+
+Suite de 6 pruebas unitarias para eliminar mutantes supervivientes en las transacciones de compra de `Game`:
+- `buyRoad_deductsExactResources`: Comprueba la deducción exacta de 1 BRICK y 1 LUMBER de la mano del jugador.
+- `buySettlement_deductsExactResources`: Valida el descuento exacto de 1 BRICK, 1 LUMBER, 1 GRAIN y 1 WOOL.
+- `buyCity_deductsExactResources`: Valida el descuento exacto de 2 GRAIN y 3 ORE al comprar una ciudad.
+- `buyRoad_capacityLimitReached`, `buySettlement_capacityLimitReached`, `buyCity_capacityLimitReached`: Comprueban el rechazo con código 2 y la preservación intacta de recursos al alcanzar los límites máximos (15 carreteras, 5 poblados, 4 ciudades).
+
+### Pruebas de Rendimiento No Funcional con JETM (`test/performance/GamePerformanceTest.java`)
+
+Suite de 2 pruebas de rendimiento y profiling continuo mediante JETM (`fm.void.jetm`):
+- `profileBoardCreationPerformance`: Monitoriza 100 iteraciones de instanciación completa del tablero (`Board::Instantiation`), verificando que el tiempo medio sea muy inferior a 50 ms (obtenido: ~0.100 ms).
+- `profileResourceDistributionPerformance`: Monitoriza 500 iteraciones del reparto de recursos con tiradas 2-12 (`Board::distributeResources`), verificando tiempos medios inferiores a 5 ms (obtenido: ~0.004 ms). Renderiza informe estadístico en consola.
+
 ## 2. Resultados de las Herramientas
 
 - **ArchUnit (Análisis Estructural)**: Ejecutado durante la fase de `test` de Maven. 7 reglas activas pasan en verde (**BUILD SUCCESS**), y la regla estricta sobre `GameRunner` se mantiene documentada e ignorada formalmente.
@@ -56,19 +88,37 @@ Suite de 148 métodos de test activos (más 9 desactivados que documentan defect
   - Sin tests: **0 %**.
   - Con `PlayerBoardIntegrationTest`: **42 %** global (45 % en `board`, 34 % en `game`).
   - Con los tests unitarios de `Player` y `Board`: **62 % de instrucciones y 60 % de ramas** global.
+  - Con la suite completa de métricas y mutación (361 tests): **64 % de instrucciones, 61 % de ramas y 65 % de líneas** global.
 
   | Paquete   | Instrucciones | Ramas    | Líneas               | Métodos       |
   | --------- | ------------- | -------- | -------------------- | ------------- |
-  | `board`   | 63 %          | 61 %     | 337 / 508 (66 %)     | 57 / 66       |
-  | `game`    | 62 %          | 58 %     | 203 / 323 (63 %)     | 42 / 52       |
+  | `board`   | 65 %          | 61 %     | 346 / 508 (68 %)     | 62 / 66       |
+  | `game`    | 64 %          | 59 %     | 206 / 323 (64 %)     | 42 / 52       |
   | `runner`  | 10 %          | n/a      | 4 / 27               | 2 / 13        |
-  | **Total** | **62 %**      | **60 %** | **544 / 858 (63 %)** | **101 / 131** |
+  | **Total** | **64 %**      | **61 %** | **556 / 858 (65 %)** | **106 / 131** |
 
-  En la clase `Board`, todo el código está cubierto salvo el cálculo del camino más largo (`findLongestRoad` y sus tres métodos auxiliares), que no se puede alcanzar por los Issues #9 y #10. La justificación detallada está en la sección 4. `runner.GameRunner` es el lanzador de la interfaz gráfica y no es objeto de pruebas unitarias.
+  En la clase `Board`, todo el código está cubierto al 100% salvo el cálculo del camino más largo (`findLongestRoad` y sus tres métodos auxiliares), que no se puede alcanzar por los Issues #9 y #10. Las clases auxiliares `City`, `Settlement`, `Road`, `Deck`, `DevCard`, `Tile`, `Location`, `VertexLocation` y `EdgeLocation` están cubiertas al **100 %**. En `game`, `Player` está cubierto al **100 %**. `runner.GameRunner` es el lanzador de la interfaz gráfica y no es objeto de pruebas unitarias.
 
-- **PIT (PiTest)**: El suite de pruebas se encuentra ahora en verde ("green suite"), permitiendo la inyección de mutantes sin bloqueos por tests fallidos.
+- **PIT (PiTest - Pruebas de Mutación)**:
+  - Suite de 361 tests en verde ejecutada con `mvn test-compile pitest:mutationCoverage`.
+  - Mutaciones totales generadas: **796**.
+  - Mutantes aniquilados (**Killed**): **492** (62 % de cobertura de mutación global).
+  - Fuerza de las pruebas (**Test Strength**): **96 %** (492 mutantes matados de 515 cubiertos).
+  - Cobertura de mutación por clases clave:
+    - `Player.java`: **100 %** (89 / 89 mutantes muertos).
+    - `City.java`: **100 %** (4 / 4 mutantes muertos).
+    - `Road.java`: **100 %** (6 / 6 mutantes muertos).
+    - `Structure.java`: **100 %** (4 / 4 mutantes muertos).
+    - `DevCard.java`, `Tile.java`, `Location.java`, `EdgeLocation.java`, `VertexLocation.java`: **100 %**.
+    - `Deck.java`: **91 %** (10 / 11 mutantes muertos; el único mutante superviviente corresponde a la llamada estocástica `Collections.shuffle`).
+    - `Board.java`: **98 % de Test Strength** (289 mutantes muertos de 295 evaluados bajo cobertura).
+    - `Game.java`: **92 % de Test Strength** (165 mutantes muertos).
+- **JETM (Rendimiento y Profiling)**:
+  - Integrado y ejecutado en `GamePerformanceTest.java`.
+  - Instanciación de `Board`: 0.100 ms de media (100 ejecuciones).
+  - Distribución de recursos: 0.004 ms de media (500 ejecuciones).
 - **CheckStyle (Análisis Estático)**: Ejecutado con `mvn checkstyle:check`. Detectó 3.298 violaciones de estilo, deteniendo la compilación (ver sección de Errores).
-- **SpotBugs (Análisis Estático)**: Ejecutado con `mvn compile spotbugs:check`. Detectó 41 posibles bugs de distintas gravedades (ver sección de Errores).
+- **SpotBugs (Análisis Estático)**: Ejecutado con `mvn compile spotbugs:check`. 0 bugs de prioridad alta (High) tras las correcciones de `Player.java`. Se detectan 31 advertencias de nivel medio (Medium) mayoritariamente en GUI y getters/setters internos (ver sección de Errores).
 
 ## 3. Errores y Problemas Detectados (Issues)
 
